@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  node:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - SOLVER_URL=http://solver:8001
+      - AI_PROVIDER=gemini
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - GEMINI_MODEL=gemini-1.5-flash
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - OPENAI_MODEL=gpt-4o-mini
+      - FEATURE_CALENDAR=${FEATURE_CALENDAR:-0}
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID:-}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET:-}
+      - GOOGLE_REDIRECT_URI=${GOOGLE_REDIRECT_URI:-}
+      - TZ=Europe/London
+      - DATABASE_PATH=/app/data/tasks.db
+    depends_on:
+      - solver
+    volumes:
+      - ./data:/app/data
+
+  solver:
+    build: ./solver
+    ports:
+      - "8001:8001"
+    environment:
+      - TZ=Europe/London
+
+volumes:
+  data:

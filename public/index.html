@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Motion AI - Smart Task Manager</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/styles.css">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#6366f1',
+                        secondary: '#8b5cf6',
+                        accent: '#f59e0b',
+                        gray: {
+                            50: '#f9fafb',
+                            100: '#f3f4f6',
+                            200: '#e5e7eb',
+                            300: '#d1d5db',
+                            400: '#9ca3af',
+                            500: '#6b7280',
+                            600: '#4b5563',
+                            700: '#374151',
+                            800: '#1f2937',
+                            900: '#111827',
+                            950: '#0a0e1a'
+                        }
+                    },
+                    fontFamily: {
+                        'sans': ['Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica', 'Arial', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css">
+</head>
+<body class="bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 font-sans">
+    <div id="app" class="min-h-screen flex">
+        <!-- Sidebar Navigation -->
+        <aside class="w-64 bg-gray-50 dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 flex flex-col">
+            <!-- Logo -->
+            <div class="p-6 border-b border-gray-200 dark:border-gray-800">
+                <div class="flex items-center space-x-3">
+                    <div class="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+                        <i class="ri-brain-line text-white text-lg"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-lg font-semibold text-gray-900 dark:text-white">Motion AI</h1>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">Smart Task Manager</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navigation Menu -->
+            <nav class="flex-1 px-4 py-6 space-y-2">
+                <a href="#" class="nav-item active" data-view="tasks">
+                    <i class="ri-task-line"></i>
+                    <span>Tasks</span>
+                </a>
+                <a href="#" class="nav-item" data-view="calendar">
+                    <i class="ri-calendar-line"></i>
+                    <span>Calendar</span>
+                </a>
+                <a href="#" class="nav-item" data-view="projects">
+                    <i class="ri-folder-line"></i>
+                    <span>Projects</span>
+                </a>
+                <a href="#" class="nav-item" data-view="analytics">
+                    <i class="ri-bar-chart-line"></i>
+                    <span>Analytics</span>
+                </a>
+
+                <div class="pt-4 mt-4 border-t border-gray-200 dark:border-gray-800">
+                    <a href="#" class="nav-item" data-view="settings">
+                        <i class="ri-settings-line"></i>
+                        <span>Settings</span>
+                    </a>
+                </div>
+            </nav>
+
+            <!-- User Profile -->
+            <div class="p-4 border-t border-gray-200 dark:border-gray-800">
+                <div class="flex items-center space-x-3">
+                    <div class="w-8 h-8 bg-gradient-to-r from-primary to-secondary rounded-full flex items-center justify-center">
+                        <span class="text-white text-sm font-medium">U</span>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm font-medium text-gray-900 dark:text-white truncate">User</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">Free Plan</p>
+                    </div>
+                    <button id="theme-toggle" class="p-1.5 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors">
+                        <i class="ri-moon-line dark:hidden text-gray-500"></i>
+                        <i class="ri-sun-line hidden dark:block text-gray-400"></i>
+                    </button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 flex flex-col overflow-hidden">
+            <!-- Top Bar -->
+            <header class="bg-white dark:bg-gray-950 border-b border-gray-200 dark:border-gray-800 px-6 py-4">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Today</h2>
+                        <p class="text-sm text-gray-500 dark:text-gray-400" id="current-date"></p>
+                    </div>
+                    <div class="flex items-center space-x-3">
+                        <button class="btn-secondary-outline">
+                            <i class="ri-add-line"></i>
+                            Add Task
+                        </button>
+                        <button id="plan-btn" class="btn-primary">
+                            <i class="ri-magic-line"></i>
+                            Auto Plan
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Content Area -->
+            <div class="flex-1 flex overflow-hidden">
+                <!-- Tasks Panel -->
+                <section class="flex-1 flex flex-col overflow-hidden">
+                    <!-- Quick Add -->
+                    <div class="p-6 border-b border-gray-200 dark:border-gray-800">
+                        <div class="max-w-2xl">
+                            <div class="relative">
+                                <input
+                                    type="text"
+                                    id="task-input"
+                                    placeholder="What would you like to work on?"
+                                    class="w-full px-4 py-3 pr-12 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200"
+                                >
+                                <button id="ai-parse-btn" class="absolute right-2 top-2 bottom-2 px-3 rounded-md bg-primary text-white hover:bg-primary/90 transition-colors">
+                                    <i class="ri-sparkles-line"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Task List -->
+                    <div class="flex-1 overflow-y-auto">
+                        <div class="p-6">
+                            <!-- Filter Bar -->
+                            <div class="flex items-center justify-between mb-6">
+                                <div class="flex items-center space-x-4">
+                                    <div class="flex items-center space-x-2">
+                                        <button class="filter-btn active" data-filter="all">All</button>
+                                        <button class="filter-btn" data-filter="todo">To Do</button>
+                                        <button class="filter-btn" data-filter="in_progress">In Progress</button>
+                                        <button class="filter-btn" data-filter="done">Done</button>
+                                    </div>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <button class="view-toggle active" data-view="list">
+                                        <i class="ri-list-unordered"></i>
+                                    </button>
+                                    <button class="view-toggle" data-view="board">
+                                        <i class="ri-layout-column-line"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Tasks -->
+                            <div id="tasks-container" class="space-y-2">
+                                <!-- Tasks will be loaded here -->
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Right Sidebar -->
+                <aside class="w-80 bg-gray-50 dark:bg-gray-900 border-l border-gray-200 dark:border-gray-800 flex flex-col">
+                    <!-- Schedule -->
+                    <div class="p-6 border-b border-gray-200 dark:border-gray-800">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wide">Schedule</h3>
+                            <button class="text-xs text-primary hover:text-primary/80">View All</button>
+                        </div>
+                        <div id="schedule-timeline" class="space-y-3">
+                            <!-- Schedule items will go here -->
+                        </div>
+                    </div>
+
+                    <!-- AI Coach -->
+                    <div class="flex-1 p-6">
+                        <h3 class="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wide mb-4">AI Coach</h3>
+                        <div class="space-y-4">
+                            <textarea
+                                id="goals-input"
+                                placeholder="What are your goals today?"
+                                class="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
+                                rows="3"
+                            ></textarea>
+                            <button id="coach-btn" class="w-full btn-primary">
+                                <i class="ri-robot-line"></i>
+                                Get Advice
+                            </button>
+                            <div id="coach-response" class="hidden p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border-l-4 border-blue-500">
+                                <p class="text-sm text-gray-700 dark:text-gray-300"></p>
+                            </div>
+                        </div>
+                    </div>
+                </aside>
+            </div>
+        </main>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toast-container" class="fixed top-4 right-4 z-50 space-y-2"></div>
+
+    <!-- Modal Overlays -->
+    <div id="loading-overlay" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 hidden">
+        <div class="bg-white dark:bg-gray-900 rounded-xl p-6 flex items-center space-x-3 shadow-2xl">
+            <div class="animate-spin rounded-full h-5 w-5 border-2 border-primary border-t-transparent"></div>
+            <span class="text-gray-900 dark:text-white font-medium">Processing...</span>
+        </div>
+    </div>
+
+    <!-- Plan Preview Modal -->
+    <div id="plan-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 hidden">
+        <div class="bg-white dark:bg-gray-900 rounded-xl p-6 max-w-2xl w-full mx-4 shadow-2xl">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Plan Preview</h3>
+                <button id="close-plan-modal" class="p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800">
+                    <i class="ri-close-line text-gray-500"></i>
+                </button>
+            </div>
+            <div id="plan-preview" class="space-y-3 mb-6">
+                <!-- Plan preview content -->
+            </div>
+            <div class="flex space-x-3">
+                <button id="approve-btn" class="flex-1 btn-primary">
+                    <i class="ri-check-line"></i>
+                    Approve & Apply
+                </button>
+                <button id="reject-btn" class="flex-1 btn-secondary-outline">
+                    <i class="ri-close-line"></i>
+                    Reject
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
